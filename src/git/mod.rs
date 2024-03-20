@@ -1,6 +1,6 @@
 use std::{
     fs::OpenOptions,
-    io::{self, BufRead, Error, SeekFrom, Write},
+    io::{Error, Write},
     path::PathBuf,
     process::{Command, Stdio},
 };
@@ -65,6 +65,68 @@ pub fn add_to_gitignore(dir: &PathBuf, add: &str) -> Result<(), std::io::Error> 
 
     if !utils::entry_exists(&file, add) {
         writeln!(file, "{}", add)?;
+    }
+
+    Ok(())
+}
+
+pub fn add_subtree(dir: &PathBuf, name: &str) -> Result<(), std::io::Error> {
+    let output = Command::new("git")
+        .current_dir(dir)
+        .args([
+            "subtree",
+            "add",
+            "--prefix",
+            name,
+            dir.join(".rep/").join(name).to_str().unwrap(),
+            "master",
+            "--squash",
+        ])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Unable to create subtree",
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn add_all(dir: &PathBuf) -> Result<(), std::io::Error> {
+    let add_output = Command::new("git")
+        .current_dir(dir)
+        .args(["add", "."])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !add_output.status.success() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Failed to add all changes",
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn commit(dir: &PathBuf, message: String) -> Result<(), std::io::Error> {
+    let output = Command::new("git")
+        .current_dir(dir)
+        .args(["commit", "-m", message.as_str()])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to commit changes for {}", dir.to_str().unwrap()),
+        ));
     }
 
     Ok(())

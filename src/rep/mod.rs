@@ -1,7 +1,8 @@
 use std::{fs, path::PathBuf};
-use termion::color::{Fg, Red};
+use termion::color::{Fg, Magenta, Red};
 
 mod utils;
+use crate::git;
 
 pub struct Rep {
     directory: PathBuf,
@@ -29,12 +30,58 @@ impl Rep {
             return;
         };
 
-        //TODO:
         if let Err(e) = self.add_to_rep(target) {
             eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
             return;
         }
-        //create worktree
+
+        let separated_repo_path = self.directory.join(".rep/").join(target);
+
+        if let Err(e) = git::init(&&separated_repo_path) {
+            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
+            return;
+        }
+
+        if let Err(e) = git::add_all(&separated_repo_path) {
+            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
+            return;
+        }
+
+        if let Err(e) = git::commit(
+            &separated_repo_path,
+            format!("{} repository created", target.to_str().unwrap()),
+        ) {
+            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
+            return;
+        }
+
+        if let Err(e) = git::add_all(&self.directory) {
+            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
+            return;
+        }
+
+        if let Err(e) = git::commit(
+            &self.directory,
+            format!(
+                "{} separated to its own repository",
+                target.to_str().unwrap()
+            ),
+        ) {
+            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
+            return;
+        }
+
+        if let Err(e) = git::add_subtree(&self.directory, target.to_str().unwrap()) {
+            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
+            return;
+        }
+
+        println!(
+            "{}SOAG: {} repository separated{}",
+            Fg(Magenta),
+            target.to_str().unwrap(),
+            Fg(termion::color::Reset)
+        );
     }
 
     fn add_to_rep(&self, path: &PathBuf) -> Result<(), std::io::Error> {
