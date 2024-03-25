@@ -12,6 +12,9 @@ pub fn repo_exists(dir: &PathBuf) -> bool {
     git_dir.exists() && git_dir.is_dir()
 }
 
+///Runs `git init` at the passed location
+///pipes the output and retunrs
+///an error if it fails
 pub fn init(dir: &PathBuf) -> Result<(), Error> {
     let output = Command::new("git")
         .current_dir(dir)
@@ -70,7 +73,13 @@ pub fn add_to_gitignore(dir: &PathBuf, add: &str) -> Result<(), std::io::Error> 
     Ok(())
 }
 
-pub fn add_subtree(dir: &PathBuf, name: &str) -> Result<(), std::io::Error> {
+pub fn add_subtree(dir: &PathBuf, name: &str, url: Option<String>) -> Result<(), std::io::Error> {
+    let mut uri = dir.join(".rep/").join(name).to_string_lossy().into_owned();
+
+    if let Some(u) = url {
+        uri = u;
+    }
+
     let output = Command::new("git")
         .current_dir(dir)
         .args([
@@ -78,7 +87,7 @@ pub fn add_subtree(dir: &PathBuf, name: &str) -> Result<(), std::io::Error> {
             "add",
             "--prefix",
             name,
-            dir.join(".rep/").join(name).to_str().unwrap(),
+            uri.as_str(),
             "master",
             "--squash",
         ])
@@ -96,6 +105,9 @@ pub fn add_subtree(dir: &PathBuf, name: &str) -> Result<(), std::io::Error> {
     Ok(())
 }
 
+///Runs `git add .` at the provided location
+///pipes the output and returns an Error
+///if something fails
 pub fn add_all(dir: &PathBuf) -> Result<(), std::io::Error> {
     let add_output = Command::new("git")
         .current_dir(dir)
@@ -126,6 +138,48 @@ pub fn commit(dir: &PathBuf, message: String) -> Result<(), std::io::Error> {
         return Err(std::io::Error::new(
             std::io::ErrorKind::Other,
             format!("Failed to commit changes for {}", dir.to_str().unwrap()),
+        ));
+    }
+
+    Ok(())
+}
+
+///Runs `git remote add origin {url}`
+///pipes the output and returns an error
+///if it fails
+pub fn add_remote_origin(dir: &PathBuf, url: &String) -> Result<(), std::io::Error> {
+    let output = Command::new("git")
+        .current_dir(dir)
+        .args(["remote", "add", "origin", url])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Failed to add remote origin {}", url),
+        ));
+    }
+
+    Ok(())
+}
+
+///Runs `git push --set-upstream origin {name}`
+///pipes the output and returns an error
+///if it fails.
+pub fn push_set_upstream(dir: &PathBuf, name: &str) -> Result<(), std::io::Error> {
+    let output = Command::new("git")
+        .current_dir(dir)
+        .args(["push", "--set-upstream", "origin", name])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Unable to set {} upstream", name),
         ));
     }
 

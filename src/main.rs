@@ -12,7 +12,12 @@ mod rep;
 )]
 enum Opt {
     #[structopt(about = "Separate target location into a new repository")]
-    Separate { target: PathBuf },
+    Separate {
+        #[structopt(help = "Path to the target directory to separate into a repo")]
+        target: PathBuf,
+        #[structopt(help = "[Optional] url for the new repo")]
+        url: Option<String>,
+    },
 }
 
 fn main() {
@@ -20,6 +25,9 @@ fn main() {
     let rep = Rep::new(std::env::current_dir().expect("Failed to get current dir"));
 
     match opt {
-        Opt::Separate { target } => rep.separate(&target),
+        Opt::Separate {
+            target,
+            url: repo_path,
+        } => rep.separate(&target, repo_path),
     }
 }
