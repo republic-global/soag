@@ -1,27 +1,9 @@
 use std::{
-    fs,
     path::PathBuf,
     process::{Command, Stdio},
 };
-use termion::color::{Fg, Magenta};
 
 use crate::git;
-
-pub fn create_rep_directory(dir: &PathBuf) -> Result<(), std::io::Error> {
-    let rep_dir = dir.join(".rep");
-
-    if !rep_dir.exists() {
-        fs::create_dir(&rep_dir)?;
-    }
-
-    println!(
-        "{}rep dir validated{}",
-        Fg(Magenta),
-        Fg(termion::color::Reset)
-    );
-
-    Ok(())
-}
 
 ///Checks if a `.git` repo exists at the provided location
 ///and tries to create one if it doesn't
