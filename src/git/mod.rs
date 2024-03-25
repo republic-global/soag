@@ -73,6 +73,10 @@ pub fn add_to_gitignore(dir: &PathBuf, add: &str) -> Result<(), std::io::Error> 
     Ok(())
 }
 
+///Creates a subtree from the provided location.
+///Runs `git subtree add --prefix {name} [{url}]`
+///If a URL is not provided, we use the `.rep/`
+///directory
 pub fn add_subtree(dir: &PathBuf, name: &str, url: Option<String>) -> Result<(), std::io::Error> {
     let mut uri = dir.join(".rep/").join(name).to_string_lossy().into_owned();
 

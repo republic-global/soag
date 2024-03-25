@@ -23,7 +23,7 @@ pub fn create_rep_directory(dir: &PathBuf) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-///Checks if a .git repo exists at the provided location
+///Checks if a `.git` repo exists at the provided location
 ///and tries to create one if it doesn't
 pub fn validate_git_repo(dir: &PathBuf) -> Result<(), std::io::Error> {
     if !git::repo_exists(dir) {
