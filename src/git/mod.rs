@@ -5,6 +5,7 @@ use std::{
     process::{Command, Stdio},
 };
 
+mod api;
 mod utils;
 
 pub fn repo_exists(dir: &PathBuf) -> bool {

@@ -4,11 +4,11 @@ use termion::color::{Fg, Magenta, Red};
 mod utils;
 use crate::git;
 
-pub struct Rep {
+pub struct Soag {
     directory: PathBuf,
 }
 
-impl Rep {
+impl Soag {
     pub fn new(directory: PathBuf) -> Self {
         Self { directory }
     }
@@ -16,6 +16,7 @@ impl Rep {
     ///Separates the target into a new repository
     ///If the `repo` arg is provided, it pushes the recently
     ///created repo to that origin
+    //TODO: cleanup function if there are errors
     pub fn separate(&self, target: &PathBuf, url: Option<String>) {
         if let Err(e) = self.setup_separation(&target) {
             eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
