@@ -1,53 +1,78 @@
-use directories::BaseDirs;
+use crate::{
+    output::output,
+    utils::utils::{self},
+};
 use std::fs;
 use structopt::StructOpt;
-use termion::color::{Fg, LightCyan, Red, Reset};
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, StructOpt, Clone)]
 pub struct Config {
     ght: Option<String>,
+    interactive: Option<bool>,
 }
 
 impl Config {
     pub fn new() -> Self {
-        Config { ght: None }
+        Config {
+            ght: None,
+            interactive: None,
+        }
     }
 
-    pub fn set_ght(&mut self, ght: Option<String>) {
+    pub fn with_ght(&mut self, ght: Option<String>) -> Self {
         self.ght = ght;
+        self.clone()
+    }
+
+    pub fn with_interactive_setup(&mut self, interactive: Option<bool>) -> Self {
+        self.interactive = interactive;
+        self.clone()
     }
 
     pub fn setup(&self) {
         if let Err(e) = self.validate_config_file() {
-            eprintln!("{}{}{}", Fg(Red), e, Fg(Reset));
+            output::error(&e.to_string());
             return;
         }
-        //check if each of the options already exist
-        //ask if they want to overwrite
-        //write to ~/.soagconfig
+
+        if let Some(interactive) = self.interactive {
+            if interactive {
+                if let Err(e) = self.interactive_setup() {
+                    output::error(&e.to_string());
+                }
+
+                return;
+            }
+        }
+
+        if let Err(e) = self.save() {
+            output::error(&e.to_string());
+            return;
+        }
+    }
+
+    fn save(&self) -> Result<(), std::io::Error> {
+        //save current configuratin to disk
+        todo!()
+    }
+
+    fn interactive_setup(&self) -> Result<(), std::io::Error> {
+        //prompt each configuration field and save it to disk
+        todo!()
     }
 
     fn validate_config_file(&self) -> Result<(), std::io::Error> {
-        match BaseDirs::new() {
-            Some(b_dirs) => {
-                let config_path = b_dirs.home_dir().join(".soagconfig");
+        match utils::get_home_dir() {
+            Ok(home_dir) => {
+                let config_file = home_dir.join(".soagconfig");
 
-                if !config_path.exists() {
-                    fs::File::create(config_path.clone())?;
-                    println!(
-                        "{}{:?} created successfully{}",
-                        Fg(LightCyan),
-                        config_path,
-                        Fg(Reset)
-                    );
+                if !config_file.exists() {
+                    fs::File::create(config_file)?;
                 }
 
                 Ok(())
             }
-            None => Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("{}BaseDir failed to initialize{}", Fg(Red), Fg(Reset)),
-            )),
+            Err(e) => Err(e),
         }
     }
 }

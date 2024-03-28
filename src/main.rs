@@ -1,10 +1,10 @@
-use config::config::Config;
-use soag::Soag;
+use soag::soag::Soag;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
 mod config;
 mod git;
+mod output;
 mod soag;
 mod utils;
 
@@ -36,20 +36,10 @@ enum Opt {
 
 fn main() {
     let opt = Opt::from_args();
-    let rep = Soag::new(std::env::current_dir().expect("Failed to get current dir"));
+    let soag = Soag::new(std::env::current_dir().expect("Failed to get current dir"));
 
     match opt {
-        Opt::Separate { target, url } => rep.separate(&target, url),
-        Opt::Configure { ght, interactive } => {
-            let mut config = Config::new();
-
-            if let Some(i) = interactive {
-                if !i {
-                    config.set_ght(ght);
-                }
-            }
-
-            config.setup();
-        }
+        Opt::Separate { target, url } => soag.separate(&target, url),
+        Opt::Configure { ght, interactive } => soag.config(ght, interactive),
     }
 }
