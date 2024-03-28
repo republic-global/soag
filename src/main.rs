@@ -8,6 +8,7 @@ mod output;
 mod soag;
 mod utils;
 
+//TODO: Move to a separated mod?
 #[derive(Debug, StructOpt)]
 #[structopt(
     name = "SOAG (Son Of A Git)",
@@ -27,13 +28,17 @@ enum Opt {
         name = "config"
     )]
     Configure {
-        #[structopt(long = "set-github-token", help = "Sets the GitHub Access Token")]
+        #[structopt(
+            long = "set-github-token",
+            help = "Sets the GitHub Access Token in the configuration file (~/.soagconfig)"
+        )]
         ght: Option<String>,
         #[structopt(short, help = "Interactive setup")]
         interactive: Option<bool>,
     },
 }
 
+//TODO: Add a pretty banner for output
 fn main() {
     let opt = Opt::from_args();
     let soag = Soag::new(std::env::current_dir().expect("Failed to get current dir"));
