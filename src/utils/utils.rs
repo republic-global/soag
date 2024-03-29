@@ -17,7 +17,9 @@ pub fn get_home_dir() -> Result<PathBuf, Error> {
     }
 }
 
-pub fn file_as_string(path: &PathBuf) -> String {
+///Returns the requested file contents as a `String`
+///or an empty `String` if it is unable to read the file
+pub fn read_file_as_string(path: &PathBuf) -> String {
     let mut result = String::new();
 
     if let Ok(existing_file) = File::open(path) {
