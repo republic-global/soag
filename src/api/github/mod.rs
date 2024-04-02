@@ -1,4 +1,6 @@
+use reqwest::{header::USER_AGENT, Client, ClientBuilder};
 use serde::{Deserialize, Serialize};
+use serde_json::{self, json};
 mod helpers;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -27,13 +29,19 @@ pub fn create_new_repo(data: RepoData) -> Result<(), reqwest::Error> {
     let new_repo = RepoData::from_name(&data.name);
     let token = helpers::get_config_access_token();
 
-    let res = reqwest::blocking::Client::new()
-        .post("https://api.github.com/user/repo")
+    let gh = "https://api.github.com/user/repos";
+
+    let req = reqwest::blocking::Client::new()
+        .post(gh)
+        .header(USER_AGENT, "foo")
         .header("Accept", "application/vnd.github+json")
-        .header("X-GitHub-Api-Version", "2022-11-28")
         .header("Authorization", format!("Bearer {}", token))
-        .body(serde_json::to_string(&new_repo).unwrap())
-        .send()?;
+        .header("X-GitHub-Api-Version", "2022-11-28")
+        .json(&new_repo);
+
+    println!("req: {:?}", req);
+
+    let res = req.send()?;
 
     println!("res = {:?}", res);
 
