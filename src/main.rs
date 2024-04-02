@@ -2,6 +2,7 @@ use soag::soag::Soag;
 use std::path::PathBuf;
 use structopt::StructOpt;
 
+mod api;
 mod config;
 mod git;
 mod output;
@@ -19,8 +20,11 @@ enum Opt {
     Separate {
         #[structopt(help = "Path to the target directory to separate into a repo")]
         target: PathBuf,
-        #[structopt(help = "[Optional] url for the new repo")]
-        url: Option<String>,
+        #[structopt(
+            long,
+            help = "[Optional] name for creating a new GH repository with.\nGitHub access_token must be set in the config.\nSee `config -h`"
+        )]
+        github: Option<String>,
     },
 
     #[structopt(
@@ -44,7 +48,14 @@ fn main() {
     let soag = Soag::new(std::env::current_dir().expect("Failed to get current dir"));
 
     match opt {
-        Opt::Separate { target, url } => soag.separate(&target, url),
+        Opt::Separate { target, github } => {
+            let mut flags = Vec::new();
+            if let Some(gh) = github {
+                flags.push(soag::flags::Flag::GitHub(gh));
+            }
+
+            soag.separate(&target, flags);
+        }
         Opt::Configure { ght, interactive } => soag.config(ght, interactive),
     }
 }

@@ -49,6 +49,16 @@ impl Config {
         }
     }
 
+    pub fn file_stringify() -> Result<String, std::io::Error> {
+        match utils::get_home_dir() {
+            Ok(home_dir) => {
+                let config_file = home_dir.join(CONFIG_FILE);
+                Ok(utils::read_file_as_string(&config_file))
+            }
+            Err(e) => Err(e),
+        }
+    }
+
     fn save(&self) -> Result<(), std::io::Error> {
         match utils::get_home_dir() {
             Ok(home_dir) => {
@@ -64,6 +74,7 @@ impl Config {
         }
     }
 
+    //TODO: Refactor this plx
     fn update_ght(&self, contents: &mut String) {
         if let Some(ght) = self.ght.clone() {
             if let Some(gh_section) = contents.find("[github]") {

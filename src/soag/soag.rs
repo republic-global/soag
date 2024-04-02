@@ -1,11 +1,14 @@
 use crate::{
     config::config::Config,
+    output::output::{self},
     soag::utils::{self},
 };
 use std::{fs, path::PathBuf};
-use termion::color::{Fg, Magenta, Red};
+use termion::color::{Fg, Red};
 
 use crate::git;
+
+use super::flags::Flag;
 
 pub struct Soag {
     directory: PathBuf,
@@ -16,28 +19,17 @@ impl Soag {
         Self { directory }
     }
 
-    ///Separates the target into a new repository
-    ///If the `repo` arg is provided, it pushes the recently
-    ///created repo to that origin
+    ///Separates the target into a new repository.
+    ///it calls `init` function from the Flags enum
+    ///for each of the passed flags
     //TODO: cleanup function if there are errors
-    pub fn separate(&self, target: &PathBuf, url: Option<String>) {
+    pub fn separate(&self, target: &PathBuf, flags: Vec<Flag>) {
         if let Err(e) = self.setup_separation(&target) {
             eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
             return;
         }
 
-        //TODO: use match here instead
-        if let Some(remote) = url.clone() {
-            if let Err(e) = self.setup_remote_origin(&target, &remote) {
-                eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
-                return;
-            }
-        } else {
-            if let Err(e) = self.setup_local_rep(&target) {
-                eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
-                return;
-            }
-        }
+        self.init_flags(&flags);
 
         if let Err(e) = git::add_all(&self.directory) {
             eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
@@ -55,17 +47,10 @@ impl Soag {
             return;
         }
 
-        if let Err(e) = git::add_subtree(&self.directory, target.to_str().unwrap(), url) {
-            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
-            return;
-        }
-
-        println!(
-            "{}SOAG: {} repository separated{}",
-            Fg(Magenta),
-            target.to_str().unwrap(),
-            Fg(termion::color::Reset)
-        );
+        output::success(&format!(
+            "SOAG: {} repository separated",
+            target.to_str().unwrap()
+        ));
     }
 
     pub fn config(&self, ght: Option<String>, interactive: Option<bool>) {
@@ -73,6 +58,12 @@ impl Soag {
             .with_ght(ght)
             .with_interactive_setup(interactive)
             .setup();
+    }
+
+    fn init_flags(&self, flags: &Vec<Flag>) {
+        for flag in flags {
+            flag.init();
+        }
     }
 
     fn add_to_rep(&self, path: &PathBuf) -> Result<(), std::io::Error> {
@@ -92,7 +83,7 @@ impl Soag {
     ///Sets up the pre-requisites for creating a sub-tree.
     ///This include:
     ///- Having a root repo
-    ///- Having a child repo
+    ///- Having a child repo at target's location
     ///- Having a commit in the child repo
     ///
     ///This function tries to do that by calling the relevant git functions
