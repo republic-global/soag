@@ -25,22 +25,23 @@ impl Config {
         self.clone()
     }
 
-    pub fn with_interactive_setup(&mut self, interactive: Option<bool>) -> Self {
-        self.interactive = interactive;
+    pub fn with_interactive_setup(&mut self, interactive: bool) -> Self {
+        self.interactive = Some(interactive);
         self.clone()
     }
 
-    pub fn setup(&self) {
+    pub fn setup(&mut self) {
         if let Err(e) = self.validate_config_file() {
             output::error(&e.to_string());
             return;
         }
 
+        //TODO; If no flag provided, handle it
         if self.interactive.is_some_and(|i| i == true) {
             if let Err(e) = self.interactive_setup() {
                 output::error(&e.to_string());
+                return;
             }
-            return;
         }
 
         if let Err(e) = self.save() {
@@ -98,9 +99,16 @@ impl Config {
         }
     }
 
-    fn interactive_setup(&self) -> Result<(), std::io::Error> {
-        //prompt each configuration field and save it to disk
-        todo!()
+    fn interactive_setup(&mut self) -> Result<(), std::io::Error> {
+        let ght = output::prompt("GitHub Access Token: ");
+
+        match ght {
+            Ok(token) => {
+                self.ght = Some(token);
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
     }
 
     ///Checks if a `.soagconfig` file exists at

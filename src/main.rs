@@ -37,8 +37,8 @@ enum Opt {
             help = "Sets the GitHub Access Token in the configuration file (~/.soagconfig)"
         )]
         ght: Option<String>,
-        #[structopt(short, help = "Interactive setup")]
-        interactive: Option<bool>,
+        #[structopt(short, long, help = "Run interactive config setup")]
+        interactive: bool,
     },
 }
 

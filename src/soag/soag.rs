@@ -37,7 +37,7 @@ impl Soag {
         ));
     }
 
-    pub fn config(&self, ght: Option<String>, interactive: Option<bool>) {
+    pub fn config(&self, ght: Option<String>, interactive: bool) {
         Config::new()
             .with_ght(ght)
             .with_interactive_setup(interactive)
