@@ -25,7 +25,7 @@ impl Soag {
     //TODO: cleanup function if there are errors
     pub fn separate(&self, target: &PathBuf, flags: Vec<Flag>) {
         if let Err(e) = self.setup_separation(&target) {
-            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
+            output::error(&e.to_string());
             return;
         }
 

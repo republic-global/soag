@@ -2,6 +2,10 @@ use std::path::PathBuf;
 
 use crate::api::github::{self};
 
+///Accepted flags for the 'separate' command
+///For example:
+///```soag separate [FLAG]```
+///
 pub enum Flag {
     GitHub(String),
 }
