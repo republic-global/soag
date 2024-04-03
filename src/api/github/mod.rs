@@ -8,7 +8,7 @@ mod helpers;
 
 pub fn setup_remote_worktree(dir: &PathBuf, name: &str) -> Result<(), std::io::Error> {
     let repo_data = api::RepoData::from_name(name);
-    let root_dir = std::env::current_dir();
+    let root_dir = std::env::current_dir().unwrap();
 
     match api::create_new_repo(repo_data) {
         Ok(res) => {
@@ -18,23 +18,16 @@ pub fn setup_remote_worktree(dir: &PathBuf, name: &str) -> Result<(), std::io::E
 
             let url = ["git@github.com:", repo_name, ".git"].join("");
 
-            println!("this is repo url: {}", url);
-            println!("and this is dir: {:?}", root_dir.unwrap());
-
             git::add_remote_origin(dir, &url.to_string())?;
             git::move_branch(dir, "master")?;
             git::push(dir, "master")?;
             force_remove(dir)?;
-            git::add_all(&std::env::current_dir().unwrap())?;
+            git::add_all(&root_dir)?;
             git::commit(
                 &std::env::current_dir().unwrap(),
                 format!("{:?} Separated to its own repository", dir),
             )?;
-            git::add_subtree(
-                &std::env::current_dir().unwrap(),
-                name,
-                Some(url.to_string()),
-            )?;
+            git::add_subtree(&root_dir, name, Some(url.to_string()))?;
 
             Ok(())
         }

@@ -3,7 +3,7 @@ use crate::{
     output::output::{self},
     soag::utils::{self},
 };
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 use termion::color::{Fg, Red};
 
 use crate::git;
@@ -50,20 +50,6 @@ impl Soag {
         }
     }
 
-    fn add_to_rep(&self, path: &PathBuf) -> Result<(), std::io::Error> {
-        let rep_dir = self.directory.join(".rep");
-
-        if !rep_dir.exists() {
-            fs::create_dir(&rep_dir)?;
-        }
-
-        let new_path = rep_dir.join(path.file_name().unwrap());
-
-        fs::rename(path, new_path)?;
-
-        Ok(())
-    }
-
     ///Sets up the pre-requisites for creating a sub-tree.
     ///This include:
     ///- Having a root repo
@@ -80,30 +66,6 @@ impl Soag {
             &self.directory.join(target),
             format!("{} repository initialized", target.to_str().unwrap()),
         )?;
-
-        Ok(())
-    }
-
-    ///Sets up the remote origin for the target.
-    ///This is a wrap function to handle `add origin`
-    ///`set-upstream`, deleting the `target` and
-    ///catching possible errors in that process
-    fn setup_remote_origin(&self, target: &PathBuf, url: &String) -> Result<(), std::io::Error> {
-        git::add_remote_origin(&self.directory.join(target), &url)?;
-        git::push_set_upstream(&self.directory.join(target), "master")?;
-        utils::force_remove(&self.directory.join(target))?;
-
-        Ok(())
-    }
-
-    ///This is a wrap function for catching errors
-    ///during the process of:
-    ///- Creating a `.rep/` directory
-    ///- moving the target into it
-    ///- adding `.rep/` to the .gitignore (or creating one if it doesn't exist)
-    fn setup_local_rep(&self, target: &PathBuf) -> Result<(), std::io::Error> {
-        self.add_to_rep(target)?;
-        utils::validate_gitignore(&self.directory)?;
 
         Ok(())
     }

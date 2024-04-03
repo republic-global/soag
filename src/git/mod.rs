@@ -1,11 +1,8 @@
 use std::{
-    fs::OpenOptions,
-    io::{Error, Write},
+    io::Error,
     path::PathBuf,
     process::{Command, Stdio},
 };
-
-mod utils;
 
 pub fn repo_exists(dir: &PathBuf) -> bool {
     let git_dir = dir.join(".git");
@@ -33,50 +30,13 @@ pub fn init(dir: &PathBuf) -> Result<(), Error> {
     }
 }
 
-pub fn gitignore_exists(dir: &PathBuf) -> bool {
-    dir.join(".gitignore").exists()
-}
-
-pub fn create_gitignore(dir: &PathBuf) -> Result<(), std::io::Error> {
-    let output = Command::new("touch")
-        .current_dir(dir)
-        .arg(".gitignore")
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .output()?;
-
-    if output.status.success() {
-        println!("Git ignore created");
-        Ok(())
-    } else {
-        Err(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "Failed to create .gitignore",
-        ))
-    }
-}
-
-pub fn add_to_gitignore(dir: &PathBuf, add: &str) -> Result<(), std::io::Error> {
-    let gitignore_path = dir.join(".gitignore");
-
-    let mut file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .read(true)
-        .write(true)
-        .open(&gitignore_path)?;
-
-    if !utils::entry_exists(&file, add) {
-        writeln!(file, "{}", add)?;
-    }
-
-    Ok(())
-}
-
 ///Creates a subtree from the provided location.
 ///Runs `git subtree add --prefix {name} [{url}]`
 ///If a URL is not provided, we use the `.rep/`
 ///directory
+//TODO: Here we need to get rid of the .rep implementation and
+//instead use a 'default' method which we can take from the
+//configuration file
 pub fn add_subtree(dir: &PathBuf, name: &str, url: Option<String>) -> Result<(), std::io::Error> {
     let mut uri = dir.join(".rep/").join(name).to_string_lossy().into_owned();
 
@@ -164,27 +124,6 @@ pub fn add_remote_origin(dir: &PathBuf, url: &String) -> Result<(), std::io::Err
         return Err(std::io::Error::new(
             std::io::ErrorKind::Other,
             format!("Failed to add remote origin {}", url),
-        ));
-    }
-
-    Ok(())
-}
-
-///Runs `git push --set-upstream origin {name}`
-///pipes the output and returns an error
-///if it fails.
-pub fn push_set_upstream(dir: &PathBuf, name: &str) -> Result<(), std::io::Error> {
-    let output = Command::new("git")
-        .current_dir(dir)
-        .args(["push", "--set-upstream", "origin", name])
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .output()?;
-
-    if !output.status.success() {
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("Unable to set {} upstream", name),
         ));
     }
 
