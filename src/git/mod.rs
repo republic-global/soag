@@ -84,8 +84,9 @@ pub fn add_subtree(dir: &PathBuf, name: &str, url: Option<String>) -> Result<(),
         uri = u;
     }
 
+    println!("This is url: {}", uri);
+
     let output = Command::new("git")
-        .current_dir(dir)
         .args([
             "subtree",
             "add",
@@ -184,6 +185,42 @@ pub fn push_set_upstream(dir: &PathBuf, name: &str) -> Result<(), std::io::Error
         return Err(std::io::Error::new(
             std::io::ErrorKind::Other,
             format!("Unable to set {} upstream", name),
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn move_branch(dir: &PathBuf, name: &str) -> Result<(), std::io::Error> {
+    let output = Command::new("git")
+        .current_dir(dir)
+        .args(["branch", "-M", name])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Unable to move branch {}", name),
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn push(dir: &PathBuf, branch: &str) -> Result<(), std::io::Error> {
+    let output = Command::new("git")
+        .current_dir(dir)
+        .args(["push", "-u", "origin", branch])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Unable to push {}", branch),
         ));
     }
 

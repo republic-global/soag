@@ -22,7 +22,7 @@ enum Opt {
         target: PathBuf,
         #[structopt(
             long,
-            help = "[Optional] name for creating a new GH repository with.\nGitHub access_token must be set in the config.\nSee `config -h`"
+            help = "[Optional] name for creating a new GH repository with.\nGitHub access_token must be set in the config. See `config -h`"
         )]
         github: Option<String>,
     },

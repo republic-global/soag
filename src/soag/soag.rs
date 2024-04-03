@@ -29,23 +29,7 @@ impl Soag {
             return;
         }
 
-        self.init_flags(&flags);
-
-        if let Err(e) = git::add_all(&self.directory) {
-            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
-            return;
-        }
-
-        if let Err(e) = git::commit(
-            &self.directory,
-            format!(
-                "{} separated to its own repository",
-                target.to_str().unwrap()
-            ),
-        ) {
-            eprintln!("{}{}{}", Fg(Red), e, Fg(termion::color::Reset));
-            return;
-        }
+        self.init_flags(&flags, target);
 
         output::success(&format!(
             "SOAG: {} repository separated",
@@ -60,9 +44,9 @@ impl Soag {
             .setup();
     }
 
-    fn init_flags(&self, flags: &Vec<Flag>) {
+    fn init_flags(&self, flags: &Vec<Flag>, target: &PathBuf) {
         for flag in flags {
-            flag.init();
+            flag.init(target);
         }
     }
 
