@@ -1,33 +1,29 @@
-use rep::Rep;
-use std::path::PathBuf;
+use arguments::Opt;
+use soag::soag::Soag;
 use structopt::StructOpt;
 
+mod api;
+mod arguments;
+mod config;
 mod git;
-mod rep;
+mod output;
+mod soag;
+mod utils;
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    name = "SOAG (Son Of A Git)",
-    about = "Git repositories management tool"
-)]
-enum Opt {
-    #[structopt(about = "Separate target location into a new repository")]
-    Separate {
-        #[structopt(help = "Path to the target directory to separate into a repo")]
-        target: PathBuf,
-        #[structopt(help = "[Optional] url for the new repo")]
-        url: Option<String>,
-    },
-}
-
+//TODO: Add a pretty banner for output
 fn main() {
     let opt = Opt::from_args();
-    let rep = Rep::new(std::env::current_dir().expect("Failed to get current dir"));
+    let soag = Soag::new(std::env::current_dir().expect("Failed to get current dir"));
 
     match opt {
-        Opt::Separate {
-            target,
-            url: repo_path,
-        } => rep.separate(&target, repo_path),
+        Opt::Separate { target, github } => {
+            let mut flags = Vec::new();
+            if let Some(gh) = github {
+                flags.push(soag::flags::Flag::GitHub(gh));
+            }
+
+            soag.separate(&target, flags);
+        }
+        Opt::Configure { ght, interactive } => soag.config(ght, interactive),
     }
 }
