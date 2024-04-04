@@ -24,7 +24,7 @@ pub fn setup_remote_worktree(dir: &PathBuf, name: &str) -> Result<(), std::io::E
             force_remove(dir)?;
             git::add_all(&root_dir)?;
             git::commit(
-                &std::env::current_dir().unwrap(),
+                &root_dir,
                 format!("{:?} Separated to its own repository", dir),
             )?;
             git::add_subtree(&root_dir, name, Some(url.to_string()))?;

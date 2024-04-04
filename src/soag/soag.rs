@@ -4,7 +4,6 @@ use crate::{
     soag::utils::{self},
 };
 use std::path::PathBuf;
-use termion::color::{Fg, Red};
 
 use crate::git;
 
