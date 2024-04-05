@@ -24,6 +24,10 @@ fn main() {
 
             soag.separate(&target, flags);
         }
-        Opt::Configure { ght, interactive } => soag.config(ght, interactive),
+        Opt::Configure {
+            ght,
+            glt,
+            interactive,
+        } => soag.config(ght, glt, interactive),
     }
 }

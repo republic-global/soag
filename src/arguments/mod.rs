@@ -32,6 +32,13 @@ pub enum Opt {
             help = "Sets the GitHub Access Token in the configuration file (~/.soagconfig)"
         )]
         ght: Option<String>,
+
+        #[structopt(
+            long = "set-gitlab-token",
+            help = "Sets the GitLab Access Token in the configuration file (~/.soagconfig)"
+        )]
+        glt: Option<String>,
+
         #[structopt(short, long, help = "Run interactive config setup")]
         interactive: bool,
     },

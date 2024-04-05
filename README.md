@@ -6,13 +6,15 @@ SOAG is a repository management toolkit designed for Git. It provides a set of t
 
 To separate a target into its own repository, use the following command:
 
-`rep separate <target> [url]`
+`soag separate <target> --github repo-name`
 
+* **The `.soagconfig` file is needed**
 
 - `<target>`: The target directory or repository to be separated.
-- `[url]` (optional): The URL of the remote repository where the newly created repository will be pushed. If not provided, a local repository will be created.
+- `--github`: (FLAG): This flags is to specify which remote SCM to use 
+- `repo-name`: The name to use for the creation of the new repo
 
-If no URL is provided, SOAG will create a `.rep/` directory where it will move the `target` and create a local repository. This allows users to work with the separated repository locally or push/pull changes as desired.
+This will create a new GitHub repository with the provided name and will use it as a subtree of the current project.
 
 ### Benefits
 
