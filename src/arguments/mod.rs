@@ -20,6 +20,11 @@ pub enum Opt {
             help = "[Optional] name for creating a new GH repository with.\nGitHub access_token must be set in the config. See `config -h`"
         )]
         github: Option<String>,
+        #[structopt(
+            long,
+            help = "[Optional] name for creating a new GL project. GitLab access_token must be set in the config.\nSee `config -h`"
+        )]
+        gitlab: Option<String>,
     },
 
     #[structopt(
@@ -32,6 +37,13 @@ pub enum Opt {
             help = "Sets the GitHub Access Token in the configuration file (~/.soagconfig)"
         )]
         ght: Option<String>,
+
+        #[structopt(
+            long = "set-gitlab-token",
+            help = "Sets the GitLab Access Token in the configuration file (~/.soagconfig)"
+        )]
+        glt: Option<String>,
+
         #[structopt(short, long, help = "Run interactive config setup")]
         interactive: bool,
     },

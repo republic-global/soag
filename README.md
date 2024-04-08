@@ -4,15 +4,31 @@ SOAG is a repository management toolkit designed for Git. It provides a set of t
 
 ### Usage
 
+`GitHub` or `GitLab` access tokens are necessary for separating repos. To configure access tokens use the `config` option:
+
+```
+soag config --set-github-token <YOUR-ACCESS-TOKEN>
+soag config --set-gitlab-token <YOUR-ACCESS-TOKEN>
+```
+Or use the interactive setup:
+```
+soag config -i
+```
+
 To separate a target into its own repository, use the following command:
 
-`rep separate <target> [url]`
+```
+soag separate <target> --github <NAME-YOUR-REPO>
+soag separate <target> --gitlab <NAME-YOUR-REPO>
+```
 
+* **The `.soagconfig` file is needed**
 
 - `<target>`: The target directory or repository to be separated.
-- `[url]` (optional): The URL of the remote repository where the newly created repository will be pushed. If not provided, a local repository will be created.
+- `--github/--gitlab`: (FLAG): This flags are to specify which remote SCM to use 
+- `repo-name`: The name to use for the creation of the new repo
 
-If no URL is provided, SOAG will create a `.rep/` directory where it will move the `target` and create a local repository. This allows users to work with the separated repository locally or push/pull changes as desired.
+This will create a new GitHub repository with the provided name and will use it as a subtree of the current project.
 
 ### Benefits
 
