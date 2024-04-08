@@ -88,9 +88,9 @@ impl Config {
         if let Some(ght) = self.ght.clone() {
             if let Some(gh_section) = contents.find("[github]") {
                 if let Some(ac_token) = contents[gh_section..].find("access_token") {
-                    if let Some(end) = contents[ac_token..].find("\n") {
+                    if let Some(end) = contents[gh_section + ac_token..].find("\n") {
                         contents.replace_range(
-                            ac_token..ac_token + end,
+                            gh_section + ac_token..gh_section + ac_token + end,
                             &format!("access_token = {}", ght),
                         );
                     }
@@ -111,9 +111,9 @@ impl Config {
         if let Some(glt) = self.glt.clone() {
             if let Some(gl_section) = contents.find("[gitlab]") {
                 if let Some(ac_token) = contents[gl_section..].find("access_token") {
-                    if let Some(end) = contents[ac_token..].find("\n") {
+                    if let Some(end) = contents[gl_section + ac_token..].find("\n") {
                         contents.replace_range(
-                            ac_token..ac_token + end,
+                            gl_section + ac_token..gl_section + ac_token + end,
                             &format!("access_token = {}", glt),
                         );
                     }

@@ -20,6 +20,11 @@ pub enum Opt {
             help = "[Optional] name for creating a new GH repository with.\nGitHub access_token must be set in the config. See `config -h`"
         )]
         github: Option<String>,
+        #[structopt(
+            long,
+            help = "[Optional] name for creating a new GL project. GitLab access_token must be set in the config.\nSee `config -h`"
+        )]
+        gitlab: Option<String>,
     },
 
     #[structopt(

@@ -16,10 +16,18 @@ fn main() {
     let soag = Soag::new(std::env::current_dir().expect("Failed to get current dir"));
 
     match opt {
-        Opt::Separate { target, github } => {
+        Opt::Separate {
+            target,
+            github,
+            gitlab,
+        } => {
             let mut flags = Vec::new();
             if let Some(gh) = github {
                 flags.push(soag::flags::Flag::GitHub(gh));
+            }
+
+            if let Some(gl) = gitlab {
+                flags.push(soag::flags::Flag::GitLab(gl));
             }
 
             soag.separate(&target, flags);
