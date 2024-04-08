@@ -16,14 +16,15 @@ pub fn setup_remote_worktree(dir: &PathBuf, name: &str) -> Result<(), std::io::E
             })?;
 
             git::add_remote_origin(dir, &repo_url.to_string())?;
-            git::move_branch(dir, "master")?;
+            git::move_branch(dir, "main")?;
+            git::push(&dir, "main")?;
             force_remove(dir)?;
             git::add_all(&root_dir)?;
             git::commit(
                 &root_dir,
                 format!("{:?} Separated to its own repository", dir),
             )?;
-            git::add_subtree(&root_dir, name, Some(repo_url.to_string()))?;
+            git::add_subtree(&root_dir, name, Some(repo_url.to_string()), "main")?;
 
             Ok(())
         }

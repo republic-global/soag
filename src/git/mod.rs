@@ -37,7 +37,12 @@ pub fn init(dir: &PathBuf) -> Result<(), Error> {
 //TODO: Here we need to get rid of the .rep implementation and
 //instead use a 'default' method which we can take from the
 //configuration file
-pub fn add_subtree(dir: &PathBuf, name: &str, url: Option<String>) -> Result<(), std::io::Error> {
+pub fn add_subtree(
+    dir: &PathBuf,
+    name: &str,
+    url: Option<String>,
+    branch: &str,
+) -> Result<(), std::io::Error> {
     let mut uri = dir.join(".rep/").join(name).to_string_lossy().into_owned();
 
     if let Some(u) = url {
@@ -53,7 +58,7 @@ pub fn add_subtree(dir: &PathBuf, name: &str, url: Option<String>) -> Result<(),
             "--prefix",
             name,
             uri.as_str(),
-            "master",
+            branch,
             "--squash",
         ])
         .stdout(Stdio::inherit())
