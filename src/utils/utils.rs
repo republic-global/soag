@@ -5,14 +5,13 @@ use std::{
 };
 
 use directories::UserDirs;
-use termion::color::{Fg, Red, Reset};
 
 pub fn get_home_dir() -> Result<PathBuf, Error> {
     match UserDirs::new() {
         Some(user_dirs) => Ok(user_dirs.home_dir().to_path_buf()),
         None => Err(Error::new(
             ErrorKind::Other,
-            format!("{}BaseDirs failed to initialize{}", Fg(Red), Fg(Reset)),
+            "BaseDirs failed to initialize",
         )),
     }
 }
